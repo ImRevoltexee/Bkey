@@ -1,21 +1,47 @@
 {
-  "functions": {
-    "api/keys.js": {
-      "maxDuration": 10
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/keys",
       "dest": "/api/keys.js"
     },
     {
-      "src": "/batch/(.*)",
-      "dest": "/api/batch/$1.js"
+      "src": "/api/batch/(.*)",
+      "dest": "/api/batch/[id].js"
+    },
+    {
+      "src": "/style.css",
+      "dest": "/public/style.css"
+    },
+    {
+      "src": "/script.js", 
+      "dest": "/public/script.js"
     },
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/keys.js": {
+      "maxDuration": 30
+    },
+    "api/batch/[id].js": {
+      "maxDuration": 30
+    }
+  }
 }
