@@ -447,7 +447,7 @@
     </div>
 
     <script>
-        // Hash key generation (client-side simulation)
+        // Hash key generation
         function generateHashKey(type) {
             const prefixes = ['BC', 'RV', 'PM', 'EL', 'VP'];
             const hexChars = '0123456789ABCDEF';
@@ -492,7 +492,7 @@
             
             loading.classList.add('active');
             
-            // Simulate loading delay for realistic effect
+            // Simulate loading delay
             setTimeout(() => {
                 // Generate hash keys
                 const keys = [];
@@ -531,7 +531,7 @@
                 loading.classList.remove('active');
                 container.style.display = 'block';
                 
-            }, 2000); // 2 second loading simulation
+            }, 2000);
         });
         
         function copyKey(keyText) {
@@ -551,11 +551,10 @@
                     }
                 });
                 
-                // Success notification
                 showNotification('🎉 Hash key copied successfully!', 'Return to Roblox and paste it in BUNCHEATS key system.');
                 
             }).catch(function() {
-                // Fallback for older browsers
+                // Fallback
                 const textArea = document.createElement('textarea');
                 textArea.value = keyText;
                 document.body.appendChild(textArea);
@@ -568,9 +567,6 @@
         
         function contactDiscord() {
             const username = 'xonzxd';
-            const message = `Hi @${username}, I want to purchase BUNCHEATS premium keys!`;
-            
-            // Copy Discord username to clipboard
             navigator.clipboard.writeText(`@${username}`).then(() => {
                 showNotification('💬 Discord Info Copied!', `Username: @${username}`);
             }).catch(() => {
@@ -579,7 +575,6 @@
         }
         
         function showNotification(title, message) {
-            // Create notification element
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
@@ -603,7 +598,6 @@
             
             document.body.appendChild(notification);
             
-            // Remove after 4 seconds
             setTimeout(() => {
                 notification.style.animation = 'slideOut 0.5s ease';
                 setTimeout(() => {
@@ -612,7 +606,7 @@
             }, 4000);
         }
         
-        // Add CSS animations
+        // Add animations
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {
