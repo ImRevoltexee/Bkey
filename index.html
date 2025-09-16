@@ -4,621 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔐 BUNCHEATS Secure Keys</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #667eea 100%);
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            overflow-x: hidden;
         }
-        
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 25px;
+            background: white;
+            border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
-            text-align: center;
             max-width: 800px;
             width: 100%;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            position: relative;
-            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
-        
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: shimmer 3s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-        
-        .header {
-            margin-bottom: 35px;
-            position: relative;
-            z-index: 1;
-        }
-        
         .title {
-            font-size: 42px;
-            font-weight: 900;
-            margin-bottom: 15px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
-            background-size: 300% 300%;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 4s ease-in-out infinite;
         }
-        
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        
-        .subtitle {
-            color: #555;
-            font-size: 18px;
-            margin-bottom: 25px;
-            font-weight: 500;
-        }
-        
-        .security-badge {
-            background: linear-gradient(45deg, #11998e, #38ef7d);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 25px;
-            font-size: 16px;
-            box-shadow: 0 8px 20px rgba(17, 153, 142, 0.3);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .loading {
-            display: none;
-            margin: 30px 0;
-        }
-        
-        .loading.active {
-            display: block;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
         .keys-container {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 20px;
-            padding: 35px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
             margin: 30px 0;
-            border: 3px dashed #007bff;
-            position: relative;
-            z-index: 1;
+            border: 2px dashed #007bff;
         }
-        
-        .keys-title {
-            color: #333;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 25px;
-        }
-        
         .key-item {
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
-            padding: 20px 25px;
-            margin: 15px 0;
-            border-radius: 15px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            position: relative;
-            overflow: hidden;
             font-family: 'Courier New', monospace;
-        }
-        
-        .key-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.6s;
-        }
-        
-        .key-item:hover::before {
-            left: 100%;
-        }
-        
-        .key-item:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .key-12h {
-            background: linear-gradient(45deg, #3498db, #2980b9) !important;
-        }
-        
-        .key-24h {
-            background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
-        }
-        
-        .key-text {
-            font-weight: bold;
-            font-size: 18px;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-            word-break: break-all;
-        }
-        
-        .key-type {
-            font-size: 14px;
-            opacity: 0.9;
-            font-weight: normal;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        
-        .key-item.copied {
-            background: linear-gradient(45deg, #27ae60, #2ecc71) !important;
-            transform: scale(1.1);
-        }
-        
-        .premium-section {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
-            padding: 30px;
-            border-radius: 20px;
-            margin: 35px 0;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .premium-title {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #f39c12;
-        }
-        
-        .premium-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 25px 0;
-        }
-        
-        .premium-plan {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid transparent;
+            font-size: 16px;
             transition: all 0.3s;
         }
-        
-        .premium-plan:hover {
-            border-color: #f39c12;
-            transform: translateY(-5px);
+        .key-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-        
-        .plan-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #f39c12;
-            margin-bottom: 10px;
-        }
-        
-        .plan-duration {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-bottom: 15px;
-        }
-        
-        .plan-features {
-            list-style: none;
-            text-align: left;
-        }
-        
-        .plan-features li {
-            margin: 8px 0;
-            padding-left: 20px;
-            position: relative;
-            font-size: 14px;
-        }
-        
-        .plan-features li::before {
-            content: '✅';
-            position: absolute;
-            left: 0;
-        }
-        
-        .discord-button {
+        .key-12h { background: linear-gradient(45deg, #3498db, #2980b9); }
+        .key-24h { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .discord-btn {
             background: linear-gradient(45deg, #7289da, #5865F2);
             color: white;
-            padding: 18px 35px;
+            padding: 15px 30px;
             border: none;
             border-radius: 25px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.4s;
-            text-decoration: none;
-            display: inline-block;
             margin-top: 20px;
-            box-shadow: 0 10px 25px rgba(114, 137, 218, 0.4);
         }
-        
-        .discord-button:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(114, 137, 218, 0.6);
-        }
-        
         .instructions {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border-left: 5px solid #007bff;
-            padding: 30px;
-            margin: 35px 0;
-            border-radius: 0 20px 20px 0;
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
             text-align: left;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .instructions h3 {
-            color: #007bff;
-            margin-bottom: 25px;
-            font-size: 20px;
-        }
-        
-        .instructions ol {
-            color: #333;
-            line-height: 2;
-        }
-        
-        .instructions li {
-            margin-bottom: 15px;
-            font-size: 16px;
-            padding-left: 10px;
-        }
-        
-        .security-info {
-            background: linear-gradient(135deg, #ff9a9e, #fecfef);
-            color: #333;
-            padding: 25px;
-            border-radius: 20px;
-            margin: 30px 0;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .security-info h4 {
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-        
-        .footer {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #ddd;
-            color: #666;
-            font-size: 14px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        @media (max-width: 768px) {
-            .container { 
-                padding: 25px; 
-                margin: 10px;
-            }
-            .title { font-size: 32px; }
-            .key-text { font-size: 14px; letter-spacing: 0.5px; }
-            .premium-grid {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="title">🔐 BUNCHEATS SECURE KEYS</div>
-            <div class="subtitle">Military-Grade Hash Encryption • Blockchain-Style Security</div>
-            <div class="security-badge">🛡️ ENCRYPTED & AUTHENTICATED</div>
-        </div>
+        <div class="title">🔐 BUNCHEATS SECURE KEYS</div>
+        <div style="color: #666; margin-bottom: 30px;">Military-Grade Hash Encryption</div>
         
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Generating encrypted hash keys...</p>
-        </div>
-        
-        <div class="keys-container" id="keysContainer" style="display: none;">
-            <div class="keys-title">🎁 Secure Hash Keys (Click to Copy)</div>
-            <div id="keysList">
-                <!-- Keys will be loaded here -->
-            </div>
-        </div>
-        
-        <div class="security-info">
-            <h4>🔒 Advanced Security Features</h4>
-            <p>• <strong>Hash-based keys:</strong> Cryptographically secure like blockchain<br>
-            • <strong>Timestamp encoding:</strong> Keys contain encrypted time data<br>
-            • <strong>Multi-format support:</strong> UUID, HEX, Base64 combinations<br>
-            • <strong>Auto-expiring:</strong> Time-limited access for security</p>
-        </div>
-        
-        <div class="premium-section">
-            <div class="premium-title">👑 Upgrade to Premium Access</div>
-            <p style="margin-bottom: 25px;">Get unlimited access with premium keys:</p>
-            
-            <div class="premium-grid">
-                <div class="premium-plan">
-                    <div class="plan-name">💎 Monthly</div>
-                    <div class="plan-duration">30 Days Access</div>
-                    <ul class="plan-features">
-                        <li>Unlimited script access</li>
-                        <li>Priority support</li>
-                        <li>No ads or waiting</li>
-                        <li>Instant key delivery</li>
-                    </ul>
-                </div>
-                
-                <div class="premium-plan">
-                    <div class="plan-name">🏆 Yearly</div>
-                    <div class="plan-duration">365 Days Access</div>
-                    <ul class="plan-features">
-                        <li>All monthly features</li>
-                        <li>Exclusive beta access</li>
-                        <li>Custom key requests</li>
-                        <li>VIP Discord role</li>
-                    </ul>
-                </div>
-                
-                <div class="premium-plan">
-                    <div class="plan-name">♾️ Lifetime</div>
-                    <div class="plan-duration">Forever Access</div>
-                    <ul class="plan-features">
-                        <li>All features included</li>
-                        <li>Lifetime updates</li>
-                        <li>Private support channel</li>
-                        <li>Reseller opportunities</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <a href="#" class="discord-button" onclick="contactDiscord()">💬 Contact @xonzxd on Discord</a>
+        <div class="keys-container">
+            <h3>🎁 Available Hash Keys (Click to Copy)</h3>
+            <div id="keysList"></div>
         </div>
         
         <div class="instructions">
-            <h3>📋 How to Use Hash Keys:</h3>
+            <h4>📋 How to Use:</h4>
             <ol>
-                <li><strong>Wait for keys to generate</strong> (auto-encrypted process)</li>
-                <li><strong>Click any hash key above</strong> to copy to clipboard</li>
-                <li><strong>Return to Roblox</strong> and open BUNCHEATS script</li>
-                <li><strong>Paste the hash key</strong> exactly as copied</li>
-                <li><strong>Enjoy secure access</strong> for your selected duration!</li>
+                <li>Click any hash key above to copy</li>
+                <li>Return to Roblox BUNCHEATS script</li>
+                <li>Paste the key and click submit</li>
+                <li>Enjoy your access!</li>
             </ol>
         </div>
         
-        <div class="footer">
-            <p>🔄 Hash keys refresh automatically every 6 hours</p>
-            <p>🛡️ Powered by BUNCHEATS Advanced Security</p>
-            <p>⭐ Join our Discord for exclusive premium offers!</p>
+        <button class="discord-btn" onclick="contactDiscord()">💬 Premium Keys: @xonzxd</button>
+        
+        <div style="margin-top: 30px; color: #666; font-size: 14px;">
+            🔄 Keys refresh every 6 hours • 🛡️ Blockchain-style security
         </div>
     </div>
 
     <script>
-        // Hash key generation
         function generateHashKey(type) {
             const prefixes = ['BC', 'RV', 'PM', 'EL', 'VP'];
-            const hexChars = '0123456789ABCDEF';
-            const base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            
+            const chars = '0123456789ABCDEF';
             const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
             const timestamp = Date.now().toString(16).toUpperCase().slice(-8);
             
-            function randomHex(length) {
-                let result = '';
-                for (let i = 0; i < length; i++) {
-                    result += hexChars[Math.floor(Math.random() * hexChars.length)];
-                }
-                return result;
+            let hash = '';
+            for (let i = 0; i < 12; i++) {
+                hash += chars[Math.floor(Math.random() * chars.length)];
             }
             
-            function randomBase64(length) {
-                let result = '';
-                for (let i = 0; i < length; i++) {
-                    result += base64Chars[Math.floor(Math.random() * base64Chars.length)];
-                }
-                return result;
-            }
-            
-            // Different hash formats
-            const formats = [
-                () => `${prefix}-${randomHex(12)}-${timestamp}:${type}`,
-                () => `${prefix}-${randomHex(4)}-${randomHex(4)}-${randomHex(4)}-${randomHex(8)}:${type}`,
-                () => `${prefix}_${randomBase64(16)}:${type}`,
-                () => `${prefix}.${randomHex(8)}.${randomBase64(8)}.${timestamp.slice(-4)}:${type}`,
-                () => `${prefix}${randomHex(6)}${randomBase64(6)}${timestamp.slice(-4)}:${type}`
-            ];
-            
-            return formats[Math.floor(Math.random() * formats.length)]();
+            return `${prefix}-${hash}-${timestamp}:${type}`;
         }
         
-        // Load keys on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            const loading = document.getElementById('loading');
-            const container = document.getElementById('keysContainer');
+        window.onload = function() {
             const keysList = document.getElementById('keysList');
+            let keysHTML = '';
             
-            loading.classList.add('active');
+            // Generate 3x 12H keys
+            for (let i = 0; i < 3; i++) {
+                const key = generateHashKey('12H');
+                keysHTML += `<div class="key-item key-12h" onclick="copyKey('${key}')">${key}<br><small>12 Hour Access</small></div>`;
+            }
             
-            // Simulate loading delay
-            setTimeout(() => {
-                // Generate hash keys
-                const keys = [];
-                
-                // Generate 3 x 12h keys
-                for (let i = 0; i < 3; i++) {
-                    keys.push({
-                        key: generateHashKey('12H'),
-                        type: '12H',
-                        duration: '12 Hour Access'
-                    });
-                }
-                
-                // Generate 3 x 24h keys
-                for (let i = 0; i < 3; i++) {
-                    keys.push({
-                        key: generateHashKey('24H'),
-                        type: '24H',
-                        duration: '24 Hour Access'
-                    });
-                }
-                
-                // Display keys
-                let keysHTML = '';
-                keys.forEach((keyData, index) => {
-                    const keyClass = keyData.type === '12H' ? 'key-12h' : 'key-24h';
-                    keysHTML += `
-                        <div class="key-item ${keyClass}" onclick="copyKey('${keyData.key}')" data-key="${keyData.key}">
-                            <div class="key-text">${keyData.key}</div>
-                            <div class="key-type">${keyData.duration}</div>
-                        </div>
-                    `;
-                });
-                
-                keysList.innerHTML = keysHTML;
-                loading.classList.remove('active');
-                container.style.display = 'block';
-                
-            }, 2000);
-        });
+            // Generate 3x 24H keys  
+            for (let i = 0; i < 3; i++) {
+                const key = generateHashKey('24H');
+                keysHTML += `<div class="key-item key-24h" onclick="copyKey('${key}')">${key}<br><small>24 Hour Access</small></div>`;
+            }
+            
+            keysList.innerHTML = keysHTML;
+        };
         
         function copyKey(keyText) {
-            navigator.clipboard.writeText(keyText).then(function() {
-                const keyElements = document.querySelectorAll('.key-item');
-                keyElements.forEach(elem => {
-                    if (elem.getAttribute('data-key') === keyText) {
-                        elem.classList.add('copied');
-                        elem.querySelector('.key-text').textContent = '✅ COPIED!';
-                        elem.querySelector('.key-type').textContent = 'Return to Roblox now!';
-                        
-                        setTimeout(() => {
-                            elem.classList.remove('copied');
-                            elem.querySelector('.key-text').textContent = keyText;
-                            elem.querySelector('.key-type').textContent = elem.classList.contains('key-12h') ? '12 Hour Access' : '24 Hour Access';
-                        }, 3000);
-                    }
-                });
-                
-                showNotification('🎉 Hash key copied successfully!', 'Return to Roblox and paste it in BUNCHEATS key system.');
-                
-            }).catch(function() {
-                // Fallback
-                const textArea = document.createElement('textarea');
-                textArea.value = keyText;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showNotification('✅ Hash key copied!', keyText);
+            navigator.clipboard.writeText(keyText).then(() => {
+                alert('🎉 Key copied: ' + keyText + '\n\nReturn to Roblox and paste it!');
+            }).catch(() => {
+                prompt('Copy this key:', keyText);
             });
         }
         
         function contactDiscord() {
-            const username = 'xonzxd';
-            navigator.clipboard.writeText(`@${username}`).then(() => {
-                showNotification('💬 Discord Info Copied!', `Username: @${username}`);
-            }).catch(() => {
-                showNotification('💬 Contact Information', `Discord: @${username}`);
-            });
+            alert('💬 Contact @xonzxd on Discord for:\n\n💎 Monthly Keys ($5-10)\n🏆 Yearly Keys ($20-50)\n♾️ Lifetime Keys ($50-100)');
         }
-        
-        function showNotification(title, message) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(45deg, #667eea, #764ba2);
-                color: white;
-                padding: 20px;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                z-index: 10000;
-                max-width: 300px;
-                font-family: 'Segoe UI', sans-serif;
-                animation: slideIn 0.5s ease;
-            `;
-            
-            notification.innerHTML = `
-                <div style="font-weight: bold; margin-bottom: 8px;">${title}</div>
-                <div style="font-size: 14px; opacity: 0.9;">${message}</div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.5s ease';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 500);
-            }, 4000);
-        }
-        
-        // Add animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
