@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "api/keys.js": {
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/keys",
+      "dest": "/api/keys.js"
+    },
+    {
+      "src": "/batch/(.*)",
+      "dest": "/api/batch/$1.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
