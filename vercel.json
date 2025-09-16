@@ -1,47 +1,8 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/keys",
-      "dest": "/api/keys.js"
-    },
-    {
-      "src": "/api/batch/(.*)",
-      "dest": "/api/batch/[id].js"
-    },
-    {
-      "src": "/style.css",
-      "dest": "/public/style.css"
-    },
-    {
-      "src": "/script.js", 
-      "dest": "/public/script.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "functions": {
-    "api/keys.js": {
-      "maxDuration": 30
-    },
-    "api/batch/[id].js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
