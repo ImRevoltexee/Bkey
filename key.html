@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUNCHEATS - Key Validation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d1b2e 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .validation-container {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid rgba(255, 100, 100, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .validation-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 100, 100, 0.05), transparent);
+            animation: rotate 4s linear infinite;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6464, #ff9999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .key-display {
+            background: rgba(50, 50, 50, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px dashed #ff6464;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            font-size: 1.1rem;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .status.valid {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .status.invalid {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            border: 1px solid #F44336;
+        }
+
+        .status.expired {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+            border: 1px solid #FFC107;
+        }
+
+        .copy-button {
+            background: linear-gradient(45deg, #ff6464, #ff9999);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .copy-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 100, 100, 0.4);
+        }
+
+        .instructions {
+            background: rgba(40, 40, 40, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff6464;
+        }
+
+        .countdown {
+            font-size: 1.1rem;
+            color: #ff9999;
+            margin: 15px 0;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 100, 100, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff6464;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="validation-container">
+        <div class="content">
+            <div class="logo">BUNCHEATS</div>
+            
+            <div id="keyInfo">
+                <div class="loading"></div>
+                <p>Validating your key...</p>
+            </div>
+            
+            <div id="keyDisplay" class="key-display" style="display: none;">
+                <!-- Key will be displayed here -->
+            </div>
+            
+            <div id="statusMessage" class="status" style="display: none;">
+                <!-- Status message will be displayed here -->
+            </div>
+            
+            <div id="instructions" class="instructions" style="display: none;">
+                <h3>How to use your key:</h3>
+                <ol style="text-align: left; margin-top: 15px;">
+                    <li>Copy the key above</li>
+                    <li>Go to Roblox and execute BUNCHEATS script</li>
+                    <li>Paste the key in the key system window</li>
+                    <li>Click "Submit Key" to access the script</li>
+                </ol>
+            </div>
+            
+            <div id="countdown" class="countdown" style="display: none;">
+                <!-- Countdown will be displayed here -->
+            </div>
+            
+            <div id="actions" style="display: none;">
+                <button class="copy-button" onclick="copyKey()">Copy Key</button>
+                <button class="copy-button" onclick="copyScript()">Copy Script</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get key from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyId = urlParams.get('k');
+        
+        // Sample script URL - replace with your actual script
+        const SCRIPT_URL = "loadstring(game:HttpGetAsync('YOUR_SCRIPT_URL_HERE'))()";
+        
+        let keyData = null;
+        let countdownInterval = null;
+
+        // Simulate key validation (in production, this would be an API call)
+        function validateKey(keyId) {
+            // Simulate different key types for demo
+            const keyTypes = {
+                '12h': { duration: 12 * 60 * 60 * 1000, type: '12 Hour' },
+                '24h': { duration: 24 * 60 * 60 * 1000, type: '24 Hour' },
+                'monthly': { duration: 30 * 24 * 60 * 60 * 1000, type: 'Monthly' },
+                'yearly': { duration: 365 * 24 * 60 * 60 * 1000, type: 'Yearly' },
+                'lifetime': { duration: -1, type: 'Lifetime' }
+            };
+            
+            // For demo purposes, validate any 24-character alphanumeric string
+            if (keyId && keyId.length === 24 && /^[A-Za-z0-9]+$/.test(keyId)) {
+                const types = Object.keys(keyTypes);
+                const randomType = types[Math.floor(Math.random() * 2)]; // Only 12h and 24h for free users
+                const keyType = keyTypes[randomType];
+                
+                return {
+                    valid: true,
+                    key: keyId,
+                    type: keyType.type,
+                    generated: Date.now(),
+                    expires: keyType.duration === -1 ? -1 : Date.now() + keyType.duration,
+                    used: false
+                };
+            }
+            
+            return { valid: false };
+        }
+
+        function updateCountdown() {
+            if (!keyData || keyData.expires === -1) return;
+            
+            const now = Date.now();
+            const timeLeft = keyData.expires - now;
+            
+            if (timeLeft <= 0) {
+                document.getElementById('countdown').innerHTML = '<strong style="color: #F44336;">⚠️ Key has expired!</strong>';
+                document.getElementById('statusMessage').className = 'status expired';
+                document.getElementById('statusMessage').innerHTML = '⚠️ This key has expired. Please get a new one.';
+                clearInterval(countdownInterval);
+                return;
+            }
+            
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            document.getElementById('countdown').innerHTML = 
+                `⏱️ Key expires in: <strong>${hours}h ${minutes}m ${seconds}s</strong>`;
+        }
+
+        function copyKey() {
+            if (keyData && keyData.key) {
+                navigator.clipboard.writeText(keyData.key).then(() => {
+                    // Show success feedback
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    btn.style.background = '#4CAF50';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Failed to copy key:', err);
+                    alert('Failed to copy key. Please copy manually: ' + keyData.key);
+                });
+            }
+        }
+
+        function copyScript() {
+            navigator.clipboard.writeText(SCRIPT_URL).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#4CAF50';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                }, 1500);
+            }).catch(err => {
+                console.error('Failed to copy script:', err);
+                alert('Failed to copy script URL. Please copy manually: ' + SCRIPT_URL);
+            });
+        }
+
+        // Initialize page
+        function initializePage() {
+            if (!keyId) {
+                document.getElementById('keyInfo').innerHTML = `
+                    <div class="status invalid">
+                        ❌ No key provided in URL
+                    </div>
+                    <p>Please get a valid key from the main page.</p>
+                `;
+                return;
+            }
+
+            // Simulate validation delay
+            setTimeout(() => {
+                keyData = validateKey(keyId);
+                
+                if (keyData.valid) {
+                    document.getElementById('keyInfo').innerHTML = `
+                        <h2 style="color: #4CAF50;">✅ Valid Key Found!</h2>
+                        <p>Your ${keyData.type} key is ready to use.</p>
+                    `;
+                    
+                    document.getElementById('keyDisplay').style.display = 'block';
+                    document.getElementById('keyDisplay').innerHTML = `
+                        <strong>Your Key:</strong><br>
+                        <span style="color: #ff9999; font-size: 1.2rem;">${keyData.key}</span>
+                    `;
+                    
+                    document.getElementById('statusMessage').style.display = 'block';
+                    document.getElementById('statusMessage').className = 'status valid';
+                    document.getElementById('statusMessage').innerHTML = 
+                        `✅ ${keyData.type} key validated successfully!`;
+                    
+                    document.getElementById('instructions').style.display = 'block';
+                    document.getElementById('actions').style.display = 'block';
+                    
+                    if (keyData.expires !== -1) {
+                        document.getElementById('countdown').style.display = 'block';
+                        updateCountdown();
+                        countdownInterval = setInterval(updateCountdown, 1000);
+                    } else {
+                        document.getElementById('countdown').style.display = 'block';
+                        document.getElementById('countdown').innerHTML = 
+                            '♾️ <strong style="color: #4CAF50;">Lifetime key - Never expires!</strong>';
+                    }
+                } else {
+                    document.getElementById('keyInfo').innerHTML = `
+                        <div class="status invalid">
+                            ❌ Invalid Key
+                        </div>
+                        <p>The provided key is invalid or has expired.</p>
+                        <p><a href="/" style="color: #ff6464;">Get a new key here</a></p>
+                    `;
+                }
+            }, 1500);
+        }
+
+        // Start initialization
+        initializePage();
+    </script>
+</body>
+</html>
