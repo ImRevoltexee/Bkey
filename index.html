@@ -3,151 +3,758 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 BUNCHEATS Secure Keys</title>
+    <title>🔐 BUNCHEATS Multi-Checkpoint Key Generator</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 20px;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
         }
+        
         .container {
-            background: white;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
             padding: 40px;
-            max-width: 800px;
+            max-width: 700px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .header {
+            margin-bottom: 35px;
+            position: relative;
+            z-index: 1;
+        }
+        
         .title {
             font-size: 36px;
             font-weight: bold;
-            margin-bottom: 20px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease-in-out infinite;
         }
-        .keys-container {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            margin: 30px 0;
-            border: 2px dashed #007bff;
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
-        .key-item {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+        
+        .subtitle {
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+        
+        .checkpoint-info {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
-            padding: 15px 20px;
-            margin: 10px 0;
-            border-radius: 10px;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .checkpoint-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .progress-container {
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            height: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(45deg, #00ff88, #32cd32);
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: progressShine 2s infinite;
+        }
+        
+        @keyframes progressShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .checkpoint-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
+            margin: 15px;
+            transition: all 0.4s;
+            box-shadow: 0 15px 30px rgba(238, 90, 82, 0.4);
+        }
+        
+        .checkpoint-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 25px 50px rgba(238, 90, 82, 0.6);
+        }
+        
+        .generate-btn {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: white;
+            padding: 25px 50px;
+            border: none;
+            border-radius: 25px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.4);
+            transition: all 0.4s;
+            margin: 20px 0;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 30px 60px rgba(0, 255, 136, 0.6);
+        }
+        
+        .key-result {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 35px;
+            border-radius: 20px;
+            margin: 30px 0;
             font-family: 'Courier New', monospace;
-            font-size: 16px;
-            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
         }
-        .key-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        
+        .key-text {
+            font-size: 18px;
+            font-weight: bold;
+            word-break: break-all;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid rgba(255,255,255,0.2);
         }
-        .key-12h { background: linear-gradient(45deg, #3498db, #2980b9); }
-        .key-24h { background: linear-gradient(45deg, #e74c3c, #c0392b); }
-        .discord-btn {
-            background: linear-gradient(45deg, #7289da, #5865F2);
+        
+        .copy-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
             padding: 15px 30px;
             border: none;
-            border-radius: 25px;
-            font-size: 16px;
+            border-radius: 15px;
             font-weight: bold;
             cursor: pointer;
             margin-top: 20px;
+            transition: all 0.3s;
         }
-        .instructions {
-            background: #e3f2fd;
+        
+        .copy-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.5);
+        }
+        
+        .timer {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 25px 0;
             padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 20px;
+            border: 2px solid rgba(231, 76, 60, 0.3);
+        }
+        
+        .warning {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            color: #2d5a2d;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 25px 0;
             text-align: left;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .instructions h4 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-align: center;
+        }
+        
+        .instructions ol {
+            margin: 20px 0;
+            padding-left: 25px;
+        }
+        
+        .instructions li {
+            margin: 12px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            display: none;
+            margin: 30px 0;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container { 
+                padding: 25px; 
+                margin: 10px;
+            }
+            .title { font-size: 28px; }
+            .key-text { font-size: 14px; }
+            .checkpoint-btn { padding: 15px 25px; font-size: 16px; }
+            .generate-btn { padding: 20px 35px; font-size: 18px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="title">🔐 BUNCHEATS SECURE KEYS</div>
-        <div style="color: #666; margin-bottom: 30px;">Military-Grade Hash Encryption</div>
-        
-        <div class="keys-container">
-            <h3>🎁 Available Hash Keys (Click to Copy)</h3>
-            <div id="keysList"></div>
+        <div class="header">
+            <div class="title">🔐 BUNCHEATS KEY GENERATOR</div>
+            <div class="subtitle">Multi-Checkpoint Security System</div>
         </div>
         
-        <div class="instructions">
-            <h4>📋 How to Use:</h4>
-            <ol>
-                <li>Click any hash key above to copy</li>
-                <li>Return to Roblox BUNCHEATS script</li>
-                <li>Paste the key and click submit</li>
-                <li>Enjoy your access!</li>
-            </ol>
+        <!-- Loading State -->
+        <div id="loading">
+            <div class="spinner"></div>
+            <p style="font-size: 18px; margin: 20px 0;">⏳ Initializing checkpoint system...</p>
         </div>
         
-        <button class="discord-btn" onclick="contactDiscord()">💬 Premium Keys: @xonzxd</button>
+        <!-- Checkpoint 1 (12H) -->
+        <div id="checkpoint1" style="display: none;">
+            <div class="checkpoint-info">
+                <div class="checkpoint-title">📋 Checkpoint 1/1 (12 Hour Key)</div>
+                <p style="font-size: 16px; margin: 15px 0;">Complete this checkpoint to generate your 12-hour access key</p>
+                <div class="progress-container">
+                    <div class="progress-fill" style="width: 50%;"></div>
+                </div>
+                <p><strong>Current Step:</strong> Complete advertisement to proceed</p>
+            </div>
+            <button class="checkpoint-btn" onclick="completeCheckpoint1()">
+                🔓 Complete Checkpoint → Generate 12H Key
+            </button>
+            <div class="warning">
+                <strong>⚠️ Important Notice:</strong> You must complete the advertisement to proceed. This supports the continuous development and maintenance of BUNCHEATS.
+            </div>
+        </div>
         
-        <div style="margin-top: 30px; color: #666; font-size: 14px;">
-            🔄 Keys refresh every 6 hours • 🛡️ Blockchain-style security
+        <!-- Checkpoint 1/2 (24H First) -->
+        <div id="checkpoint1of2" style="display: none;">
+            <div class="checkpoint-info">
+                <div class="checkpoint-title">📋 Checkpoint 1/2 (24 Hour Key)</div>
+                <p style="font-size: 16px; margin: 15px 0;">Complete the first checkpoint for 24-hour access</p>
+                <div class="progress-container">
+                    <div class="progress-fill" style="width: 25%;"></div>
+                </div>
+                <p><strong>Current Step:</strong> Complete first advertisement</p>
+            </div>
+            <button class="checkpoint-btn" onclick="goToCheckpoint2()">
+                🔓 Complete Checkpoint 1/2 → Next Step
+            </button>
+            <div class="warning">
+                <strong>🎯 24H Key Requirements:</strong> Two checkpoints are required for enhanced security and longer access duration. This ensures premium quality service.
+            </div>
+        </div>
+        
+        <!-- Checkpoint 2/2 (24H Second) -->
+        <div id="checkpoint2of2" style="display: none;">
+            <div class="checkpoint-info">
+                <div class="checkpoint-title">📋 Checkpoint 2/2 (24 Hour Key)</div>
+                <p style="font-size: 16px; margin: 15px 0;">Final checkpoint! Complete to generate your 24-hour premium key</p>
+                <div class="progress-container">
+                    <div class="progress-fill" style="width: 75%;"></div>
+                </div>
+                <p><strong>Current Step:</strong> Complete final advertisement</p>
+            </div>
+            <button class="checkpoint-btn" onclick="completeCheckpoint2()">
+                🔓 Complete Final Checkpoint → Generate 24H Key
+            </button>
+            <div class="warning">
+                <strong>🏁 Almost Complete!</strong> One more step to unlock your 24-hour premium access with enhanced features.
+            </div>
+        </div>
+        
+        <!-- Key Generation Results -->
+        <div id="keyResult" style="display: none;">
+            <div class="checkpoint-info">
+                <div class="checkpoint-title" id="resultTitle">🎉 Key Generated Successfully!</div>
+                <div class="progress-container">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+                <p id="resultDesc" style="font-size: 16px;">Your secure access key is ready!</p>
+            </div>
+            
+            <div class="key-result">
+                <div style="font-size: 20px; margin-bottom: 15px;">🔑 <strong>Your Secure Access Key:</strong></div>
+                <div class="key-text" id="generatedKey">Loading...</div>
+                <button class="copy-btn" onclick="copyKey()">📋 Copy Key to Clipboard</button>
+            </div>
+            
+            <div class="timer" id="countdown">
+                ⏰ Expires in: Loading...
+            </div>
+            
+            <div class="instructions">
+                <h4>📋 How to Use Your Key:</h4>
+                <ol>
+                    <li><strong>Copy the key above</strong> by clicking the copy button</li>
+                    <li><strong>Return to Roblox</strong> and open the BUNCHEATS script</li>
+                    <li><strong>Paste the key</strong> in the key input field</li>
+                    <li><strong>Click Submit</strong> and enjoy your premium access!</li>
+                    <li><strong>Save this page</strong> - you can generate new keys while this one is valid</li>
+                </ol>
+            </div>
+            
+            <button class="generate-btn" onclick="generateNewKey()">
+                🔄 Generate New Key (Same Duration)
+            </button>
+        </div>
+        
+        <!-- Welcome/Error State -->
+        <div id="welcome" style="display: none;">
+            <div class="checkpoint-info">
+                <div class="checkpoint-title">🔐 BUNCHEATS Key System</div>
+                <p style="font-size: 16px; margin: 20px 0;">Please access this page through the Roblox script to generate keys.</p>
+            </div>
+            <div class="warning">
+                <strong>⚠️ Access Required:</strong> This page must be accessed through the official BUNCHEATS Roblox script to function properly.
+            </div>
         </div>
     </div>
 
     <script>
-        function generateHashKey(type) {
-            const prefixes = ['BC', 'RV', 'PM', 'EL', 'VP'];
-            const chars = '0123456789ABCDEF';
+        // Global session variables
+        let userSession = {
+            deviceId: generateDeviceId(),
+            keyType: null,
+            checkpoint1Complete: false,
+            checkpoint2Complete: false,
+            keyExpiration: null,
+            currentKey: null
+        };
+
+        // Generate unique device ID with enhanced entropy
+        function generateDeviceId() {
+            let deviceId = localStorage.getItem('buncheats_device_id');
+            if (!deviceId) {
+                const timestamp = Date.now();
+                const random = Math.random().toString(36).substring(2, 15);
+                const screen = window.screen.width + 'x' + window.screen.height;
+                deviceId = 'DEV_' + timestamp + '_' + random + '_' + btoa(screen).slice(0, 8);
+                localStorage.setItem('buncheats_device_id', deviceId);
+            }
+            return deviceId;
+        }
+
+        // Initialize based on URL parameters
+        window.addEventListener('DOMContentLoaded', function() {
+            showLoading();
+            
+            setTimeout(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const keyType = urlParams.get('type');
+                const step = urlParams.get('step');
+                const deviceId = urlParams.get('device');
+                
+                // Verify device ID to prevent cheating
+                if (deviceId && deviceId !== userSession.deviceId) {
+                    showWelcome('⚠️ Invalid session detected. Please generate a new link from the Roblox script.');
+                    return;
+                }
+                
+                userSession.keyType = keyType;
+                
+                if (keyType === '12h') {
+                    if (step === 'final') {
+                        showKeyResult('12h');
+                    } else {
+                        showCheckpoint1();
+                    }
+                } else if (keyType === '24h') {
+                    if (step === 'final') {
+                        showKeyResult('24h');
+                    } else if (step === '2') {
+                        showCheckpoint2of2();
+                    } else {
+                        showCheckpoint1of2();
+                    }
+                } else {
+                    showWelcome();
+                }
+            }, 2000);
+        });
+
+        function showLoading() {
+            hideAllSections();
+            document.getElementById('loading').classList.add('active');
+        }
+
+        function hideAllSections() {
+            const sections = ['loading', 'checkpoint1', 'checkpoint1of2', 'checkpoint2of2', 'keyResult', 'welcome'];
+            sections.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.display = 'none';
+                    element.classList.remove('active');
+                }
+            });
+        }
+
+        function showCheckpoint1() {
+            hideAllSections();
+            document.getElementById('checkpoint1').style.display = 'block';
+        }
+
+        function showCheckpoint1of2() {
+            hideAllSections();
+            document.getElementById('checkpoint1of2').style.display = 'block';
+        }
+
+        function showCheckpoint2of2() {
+            hideAllSections();
+            document.getElementById('checkpoint2of2').style.display = 'block';
+        }
+
+        function showWelcome(message = null) {
+            hideAllSections();
+            const welcomeDiv = document.getElementById('welcome');
+            if (message) {
+                welcomeDiv.querySelector('p').textContent = message;
+            }
+            welcomeDiv.style.display = 'block';
+        }
+
+        // Complete checkpoint 1 (12H)
+        function completeCheckpoint1() {
+            const cutyUrl = createCutyUrl(window.location.origin + '/?type=12h&step=final&device=' + userSession.deviceId);
+            if (cutyUrl) {
+                window.open(cutyUrl, '_blank');
+            }
+        }
+
+        // Go to checkpoint 2 (24H)
+        function goToCheckpoint2() {
+            const cutyUrl = createCutyUrl(window.location.origin + '/?type=24h&step=2&device=' + userSession.deviceId);
+            if (cutyUrl) {
+                window.open(cutyUrl, '_blank');
+            }
+        }
+
+        // Complete checkpoint 2 (24H)
+        function completeCheckpoint2() {
+            const cutyUrl = createCutyUrl(window.location.origin + '/?type=24h&step=final&device=' + userSession.deviceId);
+            if (cutyUrl) {
+                window.open(cutyUrl, '_blank');
+            }
+        }
+
+        // Create Cuty.io URL with error handling
+        function createCutyUrl(targetUrl) {
+            try {
+                const apiToken = '87a312eb6315f7c057f011979115c13a8d721d5e';
+                const timestamp = Date.now().toString(36);
+                const randomAlias = 'BK' + timestamp + Math.random().toString(36).substring(2, 6).toUpperCase();
+                
+                const cutyApiUrl = `https://cuty.io/api?api=${apiToken}&url=${encodeURIComponent(targetUrl)}&alias=${randomAlias}&format=text`;
+                
+                // Note: Direct API call from browser may be blocked by CORS
+                // This would typically be handled by backend
+                return `https://cuty.io/api?api=${apiToken}&url=${encodeURIComponent(targetUrl)}&alias=${randomAlias}`;
+                
+            } catch (error) {
+                console.error('Error creating Cuty URL:', error);
+                showNotification('❌ Error', 'Failed to create checkpoint link. Please try again.');
+                return null;
+            }
+        }
+
+        // Show key generation result
+        function showKeyResult(keyType) {
+            hideAllSections();
+            document.getElementById('keyResult').style.display = 'block';
+            
+            const duration = keyType === '12h' ? '12 Hour' : '24 Hour';
+            const expireTime = keyType === '12h' ? 12 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+            
+            document.getElementById('resultTitle').textContent = `🎉 ${duration} Key Generated Successfully!`;
+            document.getElementById('resultDesc').textContent = `Your secure ${duration.toLowerCase()} access key is ready to use.`;
+            
+            // Generate the actual key with enhanced security
+            const generatedKey = generateSecureHashKey(keyType);
+            document.getElementById('generatedKey').textContent = generatedKey;
+            
+            userSession.currentKey = generatedKey;
+            userSession.keyExpiration = Date.now() + expireTime;
+            
+            // Store in localStorage for persistence
+            localStorage.setItem('buncheats_current_session', JSON.stringify(userSession));
+            
+            // Start countdown timer
+            startCountdown(expireTime);
+            
+            showNotification('🎉 Success!', `Your ${duration.toLowerCase()} key has been generated successfully!`);
+        }
+
+        // Generate secure hash key with device binding
+        function generateSecureHashKey(keyType) {
+            const prefixes = ['BC', 'RV', 'PM', 'EL', 'VP', 'XZ', 'BK', 'SK'];
             const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
             const timestamp = Date.now().toString(16).toUpperCase().slice(-8);
             
-            let hash = '';
-            for (let i = 0; i < 12; i++) {
-                hash += chars[Math.floor(Math.random() * chars.length)];
+            // Generate device-specific hash
+            const deviceHash = btoa(userSession.deviceId).replace(/[^A-Z0-9]/g, '').slice(0, 8);
+            
+            // Generate random secure hash
+            let secureHash = '';
+            const chars = '0123456789ABCDEF';
+            for (let i = 0; i < 8; i++) {
+                secureHash += chars[Math.floor(Math.random() * chars.length)];
             }
             
-            return `${prefix}-${hash}-${timestamp}:${type}`;
+            const suffix = keyType === '12h' ? '12H' : '24H';
+            return `${prefix}-${secureHash}${deviceHash}-${timestamp}:${suffix}`;
         }
-        
-        window.onload = function() {
-            const keysList = document.getElementById('keysList');
-            let keysHTML = '';
+
+        // Enhanced countdown timer with visual effects
+        function startCountdown(duration) {
+            let timeLeft = duration;
             
-            // Generate 3x 12H keys
-            for (let i = 0; i < 3; i++) {
-                const key = generateHashKey('12H');
-                keysHTML += `<div class="key-item key-12h" onclick="copyKey('${key}')">${key}<br><small>12 Hour Access</small></div>`;
-            }
+            const timer = setInterval(() => {
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                
+                const timerElement = document.getElementById('countdown');
+                timerElement.innerHTML = 
+                    `⏰ Expires in: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Change color as expiration approaches
+                if (timeLeft < 600000) { // Less than 10 minutes
+                    timerElement.style.color = '#ff4757';
+                    timerElement.style.animation = 'pulse 1s infinite';
+                } else if (timeLeft < 3600000) { // Less than 1 hour
+                    timerElement.style.color = '#ffa726';
+                }
+                
+                timeLeft -= 1000;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    timerElement.innerHTML = 
+                        `❌ Key Expired - Generate new key through Roblox script`;
+                    timerElement.style.background = '#e74c3c';
+                    timerElement.style.color = 'white';
+                }
+            }, 1000);
+        }
+
+        // Copy key to clipboard with enhanced feedback
+        function copyKey() {
+            const keyText = document.getElementById('generatedKey').textContent;
             
-            // Generate 3x 24H keys  
-            for (let i = 0; i < 3; i++) {
-                const key = generateHashKey('24H');
-                keysHTML += `<div class="key-item key-24h" onclick="copyKey('${key}')">${key}<br><small>24 Hour Access</small></div>`;
-            }
-            
-            keysList.innerHTML = keysHTML;
-        };
-        
-        function copyKey(keyText) {
             navigator.clipboard.writeText(keyText).then(() => {
-                alert('🎉 Key copied: ' + keyText + '\n\nReturn to Roblox and paste it!');
+                showNotification('🎉 Key Copied Successfully!', 'Return to Roblox and paste it in the BUNCHEATS script.');
+                
+                // Visual feedback on the key
+                const keyElement = document.getElementById('generatedKey');
+                const originalBg = keyElement.style.background;
+                keyElement.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+                keyElement.style.transform = 'scale(1.05)';
+                
+                setTimeout(() => {
+                    keyElement.style.background = originalBg;
+                    keyElement.style.transform = 'scale(1)';
+                }, 2000);
+                
             }).catch(() => {
-                prompt('Copy this key:', keyText);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = keyText;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                showNotification('✅ Key Copied!', 'Key copied using fallback method.');
             });
         }
-        
-        function contactDiscord() {
-            alert('💬 Contact @xonzxd on Discord for:\n\n💎 Monthly Keys ($5-10)\n🏆 Yearly Keys ($20-50)\n♾️ Lifetime Keys ($50-100)');
+
+        // Generate new key with cooldown protection
+        function generateNewKey() {
+            if (userSession.keyExpiration && Date.now() < userSession.keyExpiration) {
+                const timeLeft = userSession.keyExpiration - Date.now();
+                const minutes = Math.floor(timeLeft / (1000 * 60));
+                
+                if (minutes > 30) {
+                    showNotification('⚠️ Cooldown Active', `Current key still valid for ${minutes} minutes. Please wait or use existing key.`);
+                    return;
+                }
+            }
+            
+            // Generate new key with same type
+            const newKey = generateSecureHashKey(userSession.keyType);
+            document.getElementById('generatedKey').textContent = newKey;
+            userSession.currentKey = newKey;
+            
+            const expireTime = userSession.keyType === '12h' ? 12 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+            userSession.keyExpiration = Date.now() + expireTime;
+            
+            localStorage.setItem('buncheats_current_session', JSON.stringify(userSession));
+            startCountdown(expireTime);
+            
+            showNotification('🔄 New Key Generated!', 'Your new secure key is ready to use.');
         }
+
+        // Enhanced notification system
+        function showNotification(title, message, duration = 4000) {
+            // Remove existing notifications
+            const existing = document.querySelectorAll('.notification');
+            existing.forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: linear-gradient(45deg, #667eea, #764ba2);
+                color: white; padding: 25px; border-radius: 15px;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+                max-width: 350px; min-width: 300px;
+                animation: slideInRight 0.5s ease;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.2);
+            `;
+            
+            notification.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 10px; font-size: 16px;">${title}</div>
+                <div style="font-size: 14px; opacity: 0.9; line-height: 1.4;">${message}</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.5s ease';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 500);
+            }, duration);
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Handle page visibility for timer accuracy
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && userSession.keyExpiration) {
+                // Refresh timer when page becomes visible
+                const timeLeft = userSession.keyExpiration - Date.now();
+                if (timeLeft > 0) {
+                    startCountdown(timeLeft);
+                }
+            }
+        });
+
+        // Initialize loading
+        showLoading();
     </script>
 </body>
 </html>
